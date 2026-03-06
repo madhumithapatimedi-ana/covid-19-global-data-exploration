@@ -1,5 +1,5 @@
 
-# 📊 COVID-19 Global Analysis Dashboard (SQL & Power BI) – Feb 2026
+# 📊 COVID-19 Global Analysis Dashboard (SQL & Power BI) – March 2026
 
 ## 📌 Project Overview
 
