@@ -1,80 +1,56 @@
 
 # 📊 COVID-19 Global Analysis Dashboard (SQL & Power BI) – March 2026
 
-## 📌 Project Overview
+## ❓ The Problem
 
-This project is a comprehensive data exploration and visualization tool built using global COVID-19 datasets. The objective is to analyze the relationship between infection rates, mortality, and vaccination rollout across different continents and countries using **SQL Server** for data engineering and **Power BI** for interactive reporting.
+"At what point did global vaccination rollouts statistically decouple infection rates from mortality rates?"
 
-The project transforms raw, messy data into actionable insights, specifically highlighting the "Inversion Point" where vaccination scales began to impact death trends.
+The sheer volume of pandemic data made it difficult to see the "big picture." I built this project to move past raw numbers and answer:
 
----
+The Efficacy Inflection: Can we visually identify the "Inversion Point" where rising vaccinations led to declining death trends?
 
-## 🎯 Objectives
+Regional Disparity: Which continents faced the highest mortality rates relative to their population density?
 
-* **Analyze Mortality Trends:** Compare total cases vs. total deaths to calculate real-time fatality rates.
-* **Track Vaccination Progress:** Visualize the rolling total of vaccinations and its impact on death declines.
-* **Identify Global Hotspots:** Map countries with the highest infection rates relative to their population.
-* **Normalize Regional Data:** Compare continent-level impacts while avoiding data double-counting.
-* **Predictive Insights:** Use dynamic measures to see how vaccination penetration affects overall survival rates.
+Data Integrity: How do we calculate rolling totals across 200+ countries without double-counting continental aggregates included in the raw data?
 
 ---
 
-## 🛠 Tools & Features Used
+## 📂 The Data
 
-* **Microsoft SQL Server (T-SQL):** For ETL and complex data joins.
-* **Power BI Desktop:** For data modeling and dashboard creation.
-* **SQL Views:** To centralize logic and optimize dashboard performance.
-* **Window Functions:** Specifically `PARTITION BY` for rolling calculations.
-* **CTE & Temp Tables:** To handle multi-layered data transformations.
-* **DAX (Data Analysis Expressions):** For dynamic measures like Mortality Rate and Vax %.
+This project utilized the Our World in Data COVID-19 dataset, processed through a rigorous SQL-based ETL pipeline.
 
----
+Data Engineering & Transformation (T-SQL):
 
-## 🔢 Key SQL Logic Used
+Architecting Views: Created 4 specialized SQL Views to serve as a cleaned "Reporting Layer," significantly reducing Power BI refresh times.
 
-### 1️⃣ Window Functions (Rolling Totals)
+Complex Aggregations: Utilized Window Functions (PARTITION BY) to calculate cumulative rolling totals of vaccinations over time.
 
-Used to calculate the cumulative sum of vaccinations as they were administered over time.
+Logic Layering: Employed CTEs (Common Table Expressions) and Temp Tables to perform secondary calculations on top of partitioned data, such as "Percentage of Population Vaccinated" per day.
 
-Example:
-
-```sql
-SUM(CONVERT(bigint, vac.new_vaccinations)) OVER (PARTITION BY dea.Location ORDER BY dea.Date) AS RollingPeopleVaccinated
-
-```
-
-### 2️⃣ CTE (Common Table Expressions)
-
-Used to perform secondary calculations on the rolling totals created in the previous step.
-
-Example:
-
-```sql
-WITH PopvsVac AS ( ... ) 
-SELECT *, ROUND((RollingPeopleVaccinated/Population)*100, 2) AS PercPplVaccinated
-FROM PopvsVac
-
-```
+Normalization: Filtered out "Continent" entries within the "Location" column to ensure country-level maps didn't inflate global totals.
 
 ---
 
-## 📊 Dashboard Features
+## 📊 The Insights
 
-* **Global KPI Cards:** Real-time display of Total Cases, Deaths, and Global Fatality Percentage.
-* **Interactive Infection Map:** Bubble-size visualization of the "Highest Infection Count" by country.
-* **Correlation Trend Lines:** Dual-axis charts comparing Daily Cases vs. Daily Vaccinations.
-* **Continental Bar Charts:** Comparing the total death count across the six major continents.
-* **Dynamic Slicers:** Filter the entire report by **Continent**, **Country**, or **Date Range**.
+The resulting Power BI dashboard transformed millions of rows of SQL data into three high-level insights:
 
----
+The Vaccination Inversion: The trend lines clearly show a "decoupling" effect; as cumulative vaccinations crossed a specific threshold, the correlation between new cases and new deaths weakened significantly.
 
-## 📂 Dataset Information
+Mortality Hotspots: While Europe and North America had higher infection counts, the "Death per Case" ratio highlighted specific regions in South America and Africa with much higher fatality risks.
 
-The dataset includes:
-
-* **CovidDeaths:** Transactional data on new cases, deaths, and population metrics per country.
-* **CovidVaccinations:** Daily tracking of new doses administered and cumulative vaccination totals.
-* **Cleaned Views:** 4 specialized SQL Views (`Global_Stats`, `Continent_Deaths`, `Country_Infections`, `Vaccination_Timeline`) created to ensure the dashboard remains fast and accurate.
+The Population Lead: Small-population countries reached "Infection Saturation" and "Vaccination Targets" much faster than larger nations, providing a blueprint for successful rollout logistics.
 
 ---
 
+## 💡 The Conclusion
+
+Based on the SQL-driven analysis and visual trends, the following data-driven conclusions were reached:
+
+Policy Validation: The data confirms that vaccination penetration is a stronger predictor of survival than raw infection numbers, supporting continued "Booster" logistics.
+
+Resource Allocation: Governments should use the "Fatality per Case" metric (rather than just raw case counts) to determine where medical oxygen and ICU resources are most critically needed.
+
+Data Strategy: For future health crises, maintaining the SQL View architecture used here allows for real-time reporting that scales as new daily data is appended, without needing to rebuild the dashboard logic.
+
+---
